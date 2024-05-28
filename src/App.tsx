@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { ChakraProvider, HStack, Heading, Select, Text } from '@chakra-ui/react'
+import { ChakraProvider, HStack, Heading, Select, Button, Text } from '@chakra-ui/react'
 import Block from './components/Block'
 import theme from "./theme.ts"
 import { useAtomValue } from 'jotai'
@@ -22,19 +22,19 @@ const App: React.FC<{children?: React.ReactNode}> = () => {
 
   const globalState = useAtomValue(globalAtom)
 
-  const latestBlock = globalState?.latestBlock
-  const [currentBlock, setCurrentBlock] = useState<number | undefined>()
+  const latestBlock = globalState?.latestBlock ?? 100
+  const [resultSize, setResultSize] = useState(RESULT_OPTIONS[0])
+  const [currentBlock, setCurrentBlock] = useState<number>()
 
   useEffect(() => {
     if(!currentBlock) {
       setCurrentBlock(latestBlock)
     }
-  }, [latestBlock])
+  }, [latestBlock, currentBlock])
 
-  const [resultSize, setResultSize] = useState(10)
   const { currentPage, lastPage } = useMemo(() => {
     return {
-      currentPage: Math.floor(((latestBlock ?? 0) - (currentBlock ?? 0)) / resultSize),
+      currentPage: Math.floor(((latestBlock ?? 0) - (currentBlock ?? 0)) / resultSize) + 1,
       lastPage :Math.floor((latestBlock ?? 0) / resultSize)
     }
   }, [latestBlock, currentBlock, resultSize])
@@ -50,7 +50,7 @@ const App: React.FC<{children?: React.ReactNode}> = () => {
       <Heading>Starknet RPC Caller</Heading>
       <Block />
       <HStack padding={"1rem"}>
-        <Select 
+        <Select
           value={resultSize} 
           bg={"teal"}
           color={"white"}
@@ -59,6 +59,11 @@ const App: React.FC<{children?: React.ReactNode}> = () => {
           {RESULT_OPTIONS.map(opt => <option value={opt} key={opt}>{opt}</option>)}
         </Select>
         <Text>{currentPage}/{lastPage}</Text>
+      </HStack>
+
+      <HStack justifyContent={"right"} marginRight={"1rem"}>
+        <Button onClick={() => setCurrentBlock(prev => prev ? prev + resultSize : latestBlock)} visibility={currentPage !== 1 ? "visible" : 'hidden'}>Previous</Button>
+        <Button onClick={() => setCurrentBlock(prev => prev ? prev - resultSize : latestBlock)} visibility={currentPage < lastPage ? 'visible' : 'hidden'}>Next</Button>
       </HStack>
       {renderedBlocks}
     </ChakraProvider>

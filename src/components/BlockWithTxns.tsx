@@ -1,4 +1,5 @@
 import React from "react"
+import { formatUnits } from "ethers"
 import RPCCalls from "../utils/API"
 import { Box, Button, Collapse, HStack, Heading, Tag, Text, VStack, useDisclosure } from "@chakra-ui/react"
 import {
@@ -33,6 +34,10 @@ const BlockWithTxHashes:React.FC<{
                   {data?.result?.status} 
                 </Tag>
                 <Timestamp timestamp={data?.result?.timestamp ?? 0} />
+                <Box>
+                  <Text color={"green"}>Price: </Text>
+                  <Text>{formatUnits(data.result.l1_gas_price.price_in_wei, 18)}</Text>
+                </Box>
               </HStack> 
               <Heading size={"md"}>Transactions</Heading>
               <Box padding={"1rem"} maxH={"40vh"} overflow={"auto"} borderWidth='1px' borderRadius='lg' >
